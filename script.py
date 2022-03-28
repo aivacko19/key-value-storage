@@ -1,5 +1,4 @@
 import commands
-from storage import HashTableStorage
 
 
 def print_welcome_screen():
@@ -12,13 +11,15 @@ def print_welcome_screen():
 if __name__ == '__main__':
     print_welcome_screen()
 
-    storage = HashTableStorage()
     command_pool = dict()
-    command_pool['GET'] = commands.GetCommand(storage)
-    command_pool['SET'] = commands.SetCommand(storage)
-    command_pool['UNSET'] = commands.UnsetCommand(storage)
-    command_pool['NUMEQUALTO'] = commands.NumEqualToCommand(storage)
+    command_pool['GET'] = commands.GetCommand()
+    command_pool['SET'] = commands.SetCommand()
+    command_pool['UNSET'] = commands.UnsetCommand()
+    command_pool['NUMEQUALTO'] = commands.NumEqualToCommand()
     command_pool['END'] = commands.EndCommand()
+    command_pool['BEGIN'] = commands.BeginCommand()
+    command_pool['COMMIT'] = commands.CommitCommand()
+    command_pool['ROLLBACK'] = commands.RollbackCommand()
 
     while True:
         # We suppose that distance between the arguments will be one space
@@ -27,5 +28,5 @@ if __name__ == '__main__':
         try:
             command = command_pool[name]
             command.start(*argv)
-        except IndexError:
+        except KeyError:
             print('error')

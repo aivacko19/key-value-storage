@@ -1,12 +1,12 @@
 import inspect
 
-from storage import AbstractStorage
+from storage import Storage
 
 
 class Command:
 
-    def __init__(self, storage: AbstractStorage=None):
-        self.storage = storage
+    def __init__(self):
+        self.storage = Storage.get_instance()
     
     def start(self, *argv):
         arg_spec = inspect.getfullargspec(self.run)
@@ -54,3 +54,25 @@ class EndCommand(Command):
 
     def run(self, *argv):
         exit(0)
+
+
+class BeginCommand(Command):
+    
+    def run(self, *argv):
+        self.storage.begin()
+
+class CommitCommand(Command):
+
+    def run(self, *argv):
+        if not self.storage.has_transaction():
+            print('NO TRANSACTION')
+        else:
+            self.storage.commit()
+
+class RollbackCommand(Command):
+
+    def run(self, *argv):
+        if not self.storage.has_transaction():
+            print('NO TRANSACTION')
+        else:
+            self.storage.rollback()
