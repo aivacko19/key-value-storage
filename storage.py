@@ -32,9 +32,9 @@ class BaseManager:
         self._state.counters[value] += 1
 
     def unset(self, key: str) -> None:
-        # No change if key does not exist
+        # Raise KeyError if not exists
         if key not in self._state.table:
-            return 
+            raise KeyError 
 
         # Decrement counter for old value
         old_value = self._state.table[key]
@@ -88,9 +88,9 @@ class TransactionManager(BaseManager):
         self._stage.counters[value] += 1
 
     def unset(self, key: str) -> None:
-        # No change if key does not exist
+        # Raise KeyError if not exists
         if not self.has_key(key):
-            return
+            raise KeyError
 
         # Decrement counter for old value
         old_value = self.get(key)
@@ -167,8 +167,14 @@ class Storage:
         self.manager = TransactionManager(self.state)
     
     def rollback(self) -> None:
+        if not self.has_transaction():
+            raise RuntimeError("There is no active transaction")
+
         self.manager = BaseManager(self.state)
 
     def commit(self) -> None:
+        if not self.has_transaction():
+            raise RuntimeError("There is no active transaction")
+
         self.manager.commit()
         self.manager = BaseManager(self.state)
